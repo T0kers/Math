@@ -3,6 +3,10 @@
 #include <memory>
 #include <array>
 
+enum class operators : char {
+    PLUS = '+', MINUS = '-', MULTIPLY = '*', DIVIDE = '/', POWER = '^'
+};
+
 class expr {
 public:
     virtual std::unique_ptr<expr> evaluate() = 0;
@@ -44,7 +48,7 @@ public:
     }
 
     std::string getInfo() const override {
-        return "(" + lChild->getInfo() + "+" + rChild->getInfo() + ")";
+        return "(" + lChild->getInfo() + (char)operators::PLUS + rChild->getInfo() + ")";
     }
 };
 
@@ -57,7 +61,7 @@ public:
     }
 
     std::string getInfo() const override {
-        return "(" + lChild->getInfo() + "-" + rChild->getInfo() + ")";
+        return "(" + lChild->getInfo() + (char)operators::MINUS + rChild->getInfo() + ")";
     }
 };
 
@@ -70,7 +74,7 @@ public:
     }
 
     std::string getInfo() const override {
-        return "(" + lChild->getInfo() + "*" + rChild->getInfo() + ")";
+        return "(" + lChild->getInfo() + (char)operators::MULTIPLY + rChild->getInfo() + ")";
     }
 };
 
@@ -83,7 +87,7 @@ public:
     }
 
     std::string getInfo() const override {
-        return "(" + lChild->getInfo() + "/" + rChild->getInfo() + ")";
+        return "(" + lChild->getInfo() + (char)operators::DIVIDE + rChild->getInfo() + ")";
     }
 };
 
@@ -104,13 +108,34 @@ std::unique_ptr<constant> find_number(const std::string& input, size_t& index) {
 
 std::unique_ptr<expr> generate_tree(const std::string& input, size_t& index, size_t end);
 
-std::unique_ptr<expr> find_part(const std::string& input, size_t& index) {
+char operation_importance(char c) {
+    switch (c)
+    {
+    case '+':
+    case '-':
+        return 0;
+        break;
+    case '*':
+    case '/':
+        return 1;
+        break;
+    case '^':
+        return 2;
+        break;
+    default:
+        return -1;
+        break;
+    }
+}
+
+std::unique_ptr<expr> find_part(const std::string& input, size_t& index, int& importance) {
     char letter = input[index];
     size_t search_index = index;
-    search_index++;
     if (letter == '(') {
+        index++;
         uint8_t parenthesis_count = 1;
         while (parenthesis_count != 0) {
+            search_index++;
             char letter = input[search_index];
             if (letter == '(') {
                 parenthesis_count += 1;
@@ -118,14 +143,17 @@ std::unique_ptr<expr> find_part(const std::string& input, size_t& index) {
             else if (letter == ')') {
                 parenthesis_count -= 1;
             }
-            search_index++;
         }
-        return generate_tree(input, index, search_index);
+        search_index++;
+        std::cout << search_index << "\n";
+        std::unique_ptr<expr> test = generate_tree(input, index, search_index);
+        std::cout << test->getInfo() << "\n";
+        return test;
     }
     else {
         while (search_index < input.length()) {
             char letter = input[search_index];
-            if (letter == '+' || letter == '-') {
+            if (letter == '+' || letter == '-' || letter == ')') {
                 return generate_tree(input, index, search_index);
             }
             search_index++;
@@ -133,6 +161,8 @@ std::unique_ptr<expr> find_part(const std::string& input, size_t& index) {
         return generate_tree(input, index, input.length());
     }
 }
+
+
 
 std::unique_ptr<expr> generate_tree(const std::string& input, size_t& index, size_t end) {
     char letter;
@@ -151,53 +181,46 @@ std::unique_ptr<expr> generate_tree(const std::string& input, size_t& index, siz
             }
         }
         else if (letter == '(') {
-            index++;
             if (!lExpression) {
-                lExpression = generate_tree(input, index, input.length());
+                lExpression = find_part(input, index);
             }
-            else {
-                rExpression = generate_tree(input, index, input.length());
-            }
-        }
-
-        else if (letter == ')') {
-            index++;
-            return lExpression;
         }
 
         else if (letter == '+') {
-            /*if (rExpression) {
-                std::cout << "aaa\n";
-                lExpression = std::make_unique<plus>(std::move(lExpression), std::move(rExpression));
-            }*/
             index++;
             rExpression = find_part(input, index);
+            lExpression = std::make_unique<plus>(std::move(lExpression), std::move(rExpression));
+            rExpression.reset();
         }
 
         else if (letter == '-') {
-            /*if (rExpression) {
-                lExpression = std::make_unique<minus>(std::move(lExpression), std::move(rExpression));
-            }*/
             index++;
             if (!lExpression) {
                 lExpression = std::make_unique<minus>(std::make_unique<constant>(0), find_part(input, index));
             }
             else {
                 rExpression = find_part(input, index);
+                lExpression = std::make_unique<minus>(std::move(lExpression), std::move(rExpression));
+                rExpression.reset();
             }
-        }
-        else {
-            index++;
         }
 
-        if (rExpression) {
-            if (letter == '+') {
-                lExpression = std::make_unique<plus>(std::move(lExpression), std::move(rExpression));
-            }
-            else if (letter == '-') {
-                lExpression = std::make_unique<minus>(std::move(lExpression), std::move(rExpression));
-            }
+        else if (letter == '*') {
+            index++;
+            rExpression = find_part(input, index);
+            lExpression = std::make_unique<multiply>(std::move(lExpression), std::move(rExpression));
             rExpression.reset();
+        }
+
+        else if (letter == '/') {
+            index++;
+            rExpression = find_part(input, index);
+            lExpression = std::make_unique<divide>(std::move(lExpression), std::move(rExpression));
+            rExpression.reset();
+        }
+
+        else {
+            index++;
         }
     }
     return lExpression;
@@ -207,18 +230,24 @@ std::unique_ptr<expr> generate_tree(const std::string& input, size_t& index, siz
 
 int main() {
     std::string user_input;
-    std::cout << "Type math question:\n> ";
-    std::cin >> user_input;
+    double result;
 
-    size_t start = 0;
-    std::unique_ptr<expr> tree = generate_tree(user_input, start, user_input.length());
-    std::cout << *tree << "\n";
+    while (true) {
+        std::cout << "Type math question:\n> ";
+        std::cin >> user_input;
 
-    double result = static_cast<constant*>(tree->evaluate().get())->value;
+        if (user_input == "end") {
+            break;
+        }
 
-    std::cout << result << "\n";
+        size_t start = 0;
+        std::unique_ptr<expr> tree = generate_tree(user_input, start, user_input.length());
+        std::cout << *tree << "\n";
 
-    std::string end;
-    std::cin >> end;
+        result = static_cast<constant*>(tree->evaluate().get())->value;
+
+        std::cout << result << "\n";
+    }
+
     return 0;
 }
