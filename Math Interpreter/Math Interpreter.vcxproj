@@ -128,6 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\tree.cpp" />
+    <ClCompile Include="src\treeGeneration.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\tree.h" />
+    <ClInclude Include="src\treeGeneration.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
