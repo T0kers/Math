@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 enum op : char {
     PLUS = '+', MINUS = '-', MULTIPLY = '*', DIVIDE = '/', POWER = '^', lPAREN = '(', rPAREN = ')'
@@ -17,6 +18,17 @@ public:
     virtual std::string getInfo() const = 0;
 };
 
+class error : public expr {
+public:
+    std::string msg;
+
+    error(std::string msg);
+
+    std::unique_ptr<expr> evaluate() override;
+
+    std::string getInfo() const override;
+};
+
 class operation : public expr {
 public:
     std::unique_ptr<expr> lChild;
@@ -27,11 +39,11 @@ public:
 
 std::string doubleToString(double value);
 
-class constant : public expr {
+class number : public expr {
 public:
     double value;
 
-    constant(double value);
+    number(double value);
 
     std::unique_ptr<expr> evaluate() override;
 

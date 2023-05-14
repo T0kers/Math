@@ -4,6 +4,17 @@ std::string operator+(const std::string& str, op op) {
     return str + static_cast<char>(op);
 }
 
+error::error(std::string msg)
+    : msg(msg) {}
+
+std::unique_ptr<expr> error::evaluate() {
+    return std::make_unique<error>(msg);
+}
+
+std::string error::getInfo() const {
+    return msg;
+}
+
 operation::operation(std::unique_ptr<expr> lChild, std::unique_ptr<expr> rChild)
     : lChild(std::move(lChild)), rChild(std::move(rChild)) {}
 
@@ -18,19 +29,19 @@ std::string doubleToString(double value) {
     return str;
 }
 
-constant::constant(double value)
+number::number(double value)
     : value(value) {}
 
-std::unique_ptr<expr> constant::evaluate() {
-    return std::make_unique<constant>(value);
+std::unique_ptr<expr> number::evaluate() {
+    return std::make_unique<number>(value);
 }
 
-std::string constant::getInfo() const {
+std::string number::getInfo() const {
     return doubleToString(value);
 }
 
 std::unique_ptr<expr> plus::evaluate() {
-    return std::make_unique<constant>(static_cast<constant*>(lChild->evaluate().get())->value + static_cast<constant*>(rChild->evaluate().get())->value);
+    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value + static_cast<number*>(rChild->evaluate().get())->value);
 }
 
 std::string plus::getInfo() const {
@@ -38,7 +49,7 @@ std::string plus::getInfo() const {
 }
 
 std::unique_ptr<expr> minus::evaluate() {
-    return std::make_unique<constant>(static_cast<constant*>(lChild->evaluate().get())->value - static_cast<constant*>(rChild->evaluate().get())->value);
+    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value - static_cast<number*>(rChild->evaluate().get())->value);
 }
 
 std::string minus::getInfo() const {
@@ -46,7 +57,7 @@ std::string minus::getInfo() const {
 }
 
 std::unique_ptr<expr> multiply::evaluate() {
-    return std::make_unique<constant>(static_cast<constant*>(lChild->evaluate().get())->value * static_cast<constant*>(rChild->evaluate().get())->value);
+    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value * static_cast<number*>(rChild->evaluate().get())->value);
 }
 
 std::string multiply::getInfo() const {
@@ -54,7 +65,7 @@ std::string multiply::getInfo() const {
 }
 
 std::unique_ptr<expr> divide::evaluate() {
-    return std::make_unique<constant>(static_cast<constant*>(lChild->evaluate().get())->value / static_cast<constant*>(rChild->evaluate().get())->value);
+    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value / static_cast<number*>(rChild->evaluate().get())->value);
 }
 
 std::string divide::getInfo() const {
@@ -62,7 +73,7 @@ std::string divide::getInfo() const {
 }
 
 std::unique_ptr<expr> power::evaluate() {
-    return std::make_unique<constant>(pow(static_cast<constant*>(lChild->evaluate().get())->value, static_cast<constant*>(rChild->evaluate().get())->value));
+    return std::make_unique<number>(pow(static_cast<number*>(lChild->evaluate().get())->value, static_cast<number*>(rChild->evaluate().get())->value));
 }
 
 std::string power::getInfo() const {

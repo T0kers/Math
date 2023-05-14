@@ -1,14 +1,13 @@
 #include "treeGeneration.h"
 
-std::unique_ptr<constant> findNumber(const std::string& input, size_t& index) {
-    double number = 0;
+std::unique_ptr<number> findNumber(const std::string& input, size_t& index) {
+    double num = 0;
     for (index; index < input.length() && isdigit(input[index]); index++) {
-        number = number * 10 + (input[index] - '0');
+        num = num * 10 + (input[index] - '0');
     }
 
-    return std::make_unique<constant>(number);
+    return std::make_unique<number>(num);
 }
-
 
 int8_t operationImportance(char c) {
     switch (c)
@@ -24,6 +23,10 @@ int8_t operationImportance(char c) {
     case op::POWER:
         return 2;
         break;
+    case op::lPAREN:
+    case op::rPAREN:
+        return 3;
+        break;
     default:
         return 10;
         break;
@@ -31,17 +34,32 @@ int8_t operationImportance(char c) {
 }
 
 std::unique_ptr<expr> findPart(const std::string& input, size_t& index, char operation) {
+    std::cout << "operation: " << operation << "\n";
     char letter;
     size_t search_index = index;
     int8_t importance = operationImportance(operation);
     while (search_index < input.length()) {
         letter = input[search_index];
         if (letter == op::lPAREN) {
-            index++;
+            if (search_index == index) {
+                index++;
+            }
             uint8_t parenthesis_count = 1;
             while (parenthesis_count != 0) {
                 search_index++;
-                letter = input[search_index];
+                try {
+                    if (search_index > input.length()) {
+                        throw std::string("Parentheses are not matching.");
+                    }
+                    else {
+                        letter = input[search_index];
+                    }
+                }
+                catch(std::string& msg) {
+                    std::cout << "ERROR:\n";
+                    return std::make_unique<error>(msg);
+                }
+                
                 if (letter == op::lPAREN) {
                     parenthesis_count += 1;
                 }
@@ -51,13 +69,22 @@ std::unique_ptr<expr> findPart(const std::string& input, size_t& index, char ope
             }
         }
         else if (importance >= operationImportance(letter)) {
-            return generateTree(input, index, search_index);
+            if (letter == op::MINUS && operationImportance(input[search_index - 1]) < 3) {
+                std::cout << "hello\n";
+            }
+            else {
+                return generateTree(input, index, search_index);
+            }
         }
         search_index++;
     }
+    std::cout << index << " " << search_index << "\n";
     return generateTree(input, index, search_index);
 }
 
+bool isError(std::unique_ptr<expr>& textExpr) {
+    return dynamic_cast<error*>(textExpr.get()) != nullptr;
+}
 
 std::unique_ptr<expr> generateTree(const std::string& input, size_t& index, size_t end) {
     char letter;
@@ -78,52 +105,68 @@ std::unique_ptr<expr> generateTree(const std::string& input, size_t& index, size
         else if (letter == op::lPAREN) {
             if (!lExpression) {
                 lExpression = findPart(input, index, op::lPAREN);
+                if (isError(lExpression)) {
+                    return std::move(lExpression);
+                }
             }
         }
-
         else if (letter == op::PLUS) {
             index++;
             rExpression = findPart(input, index, op::PLUS);
+            if (isError(rExpression)) {
+                return std::move(rExpression);
+            }
             lExpression = std::make_unique<plus>(std::move(lExpression), std::move(rExpression));
             rExpression.reset();
         }
-
         else if (letter == op::MINUS) {
             index++;
             if (!lExpression) {
-                lExpression = std::make_unique<minus>(std::make_unique<constant>(0), findPart(input, index, op::MINUS));
+                lExpression = findPart(input, index, op::MULTIPLY);
+                if (isError(lExpression)) {
+                    return std::move(lExpression);
+                }
+                lExpression = std::make_unique<multiply>(std::make_unique<number>(-1), std::move(lExpression));
             }
             else {
                 rExpression = findPart(input, index, op::MINUS);
+                if (isError(rExpression)) {
+                    return std::move(rExpression);
+                }
                 lExpression = std::make_unique<minus>(std::move(lExpression), std::move(rExpression));
                 rExpression.reset();
             }
         }
-
         else if (letter == op::MULTIPLY) {
             index++;
             rExpression = findPart(input, index, op::MULTIPLY);
+            if (isError(rExpression)) {
+                return std::move(rExpression);
+            }
             lExpression = std::make_unique<multiply>(std::move(lExpression), std::move(rExpression));
             rExpression.reset();
         }
-
         else if (letter == op::DIVIDE) {
             index++;
             rExpression = findPart(input, index, op::DIVIDE);
+            if (isError(rExpression)) {
+                return std::move(rExpression);
+            }
             lExpression = std::make_unique<divide>(std::move(lExpression), std::move(rExpression));
             rExpression.reset();
         }
         else if (letter == op::POWER) {
             index++;
             rExpression = findPart(input, index, op::POWER);
+            if (isError(rExpression)) {
+                return std::move(rExpression);
+            }
             lExpression = std::make_unique<power>(std::move(lExpression), std::move(rExpression));
             rExpression.reset();
         }
-
         else {
             index++;
         }
     }
-    return lExpression;
-
+    return std::move(lExpression);
 }

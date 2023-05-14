@@ -1,0 +1,5 @@
+Decimal values
+functions: log, sin, cos, tan...
+constants like pi and e
+equations
+isolating equations
