@@ -67,7 +67,9 @@ std::unique_ptr<expr> findPart(const std::string& input, size_t& index, char ope
                     parenthesis_count -= 1;
                 }
             }
-            index++;
+        }
+        if (letter == op::rPAREN) {
+            return generateTree(input, index, search_index);
         }
         else if (importance >= operationImportance(letter)) {
             if (letter == op::MINUS && operationImportance(input[search_index - 1]) < 3) {
