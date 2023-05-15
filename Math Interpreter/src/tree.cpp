@@ -7,7 +7,7 @@ std::string operator+(const std::string& str, op op) {
 error::error(std::string msg)
     : msg(msg) {}
 
-std::unique_ptr<expr> error::evaluate() {
+std::unique_ptr<expr> error::approximate() {
     return std::make_unique<error>(msg);
 }
 
@@ -32,7 +32,7 @@ std::string doubleToString(double value) {
 number::number(double value)
     : value(value) {}
 
-std::unique_ptr<expr> number::evaluate() {
+std::unique_ptr<expr> number::approximate() {
     return std::make_unique<number>(value);
 }
 
@@ -40,40 +40,51 @@ std::string number::getInfo() const {
     return doubleToString(value);
 }
 
-std::unique_ptr<expr> plus::evaluate() {
-    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value + static_cast<number*>(rChild->evaluate().get())->value);
+constant::constant(std::string name, double value) 
+    : name(name), value(value) {}
+
+std::unique_ptr<expr> constant::approximate()  {
+    return std::make_unique<number>(value);
+}
+
+std::string constant::getInfo() const {
+    return name;
+}
+
+std::unique_ptr<expr> plus::approximate() {
+    return std::make_unique<number>(static_cast<number*>(lChild->approximate().get())->value + static_cast<number*>(rChild->approximate().get())->value);
 }
 
 std::string plus::getInfo() const {
     return "(" + lChild->getInfo() + op::PLUS + rChild->getInfo() + ")";
 }
 
-std::unique_ptr<expr> minus::evaluate() {
-    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value - static_cast<number*>(rChild->evaluate().get())->value);
+std::unique_ptr<expr> minus::approximate() {
+    return std::make_unique<number>(static_cast<number*>(lChild->approximate().get())->value - static_cast<number*>(rChild->approximate().get())->value);
 }
 
 std::string minus::getInfo() const {
     return "(" + lChild->getInfo() + op::MINUS + rChild->getInfo() + ")";
 }
 
-std::unique_ptr<expr> multiply::evaluate() {
-    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value * static_cast<number*>(rChild->evaluate().get())->value);
+std::unique_ptr<expr> multiply::approximate() {
+    return std::make_unique<number>(static_cast<number*>(lChild->approximate().get())->value * static_cast<number*>(rChild->approximate().get())->value);
 }
 
 std::string multiply::getInfo() const {
     return "(" + lChild->getInfo() + op::MULTIPLY + rChild->getInfo() + ")";
 }
 
-std::unique_ptr<expr> divide::evaluate() {
-    return std::make_unique<number>(static_cast<number*>(lChild->evaluate().get())->value / static_cast<number*>(rChild->evaluate().get())->value);
+std::unique_ptr<expr> divide::approximate() {
+    return std::make_unique<number>(static_cast<number*>(lChild->approximate().get())->value / static_cast<number*>(rChild->approximate().get())->value);
 }
 
 std::string divide::getInfo() const {
     return "(" + lChild->getInfo() + op::DIVIDE + rChild->getInfo() + ")";
 }
 
-std::unique_ptr<expr> power::evaluate() {
-    return std::make_unique<number>(pow(static_cast<number*>(lChild->evaluate().get())->value, static_cast<number*>(rChild->evaluate().get())->value));
+std::unique_ptr<expr> power::approximate() {
+    return std::make_unique<number>(pow(static_cast<number*>(lChild->approximate().get())->value, static_cast<number*>(rChild->approximate().get())->value));
 }
 
 std::string power::getInfo() const {

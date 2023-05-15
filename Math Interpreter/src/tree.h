@@ -14,7 +14,7 @@ std::string operator+(const std::string& str, op op);
 
 class expr {
 public:
-    virtual std::unique_ptr<expr> evaluate() = 0;
+    virtual std::unique_ptr<expr> approximate() = 0;
     virtual std::string getInfo() const = 0;
 };
 
@@ -24,7 +24,7 @@ public:
 
     error(std::string msg);
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };
@@ -45,16 +45,29 @@ public:
 
     number(double value);
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
+};
+
+class constant : public expr {
+public:
+    std::string name;
+    double value;
+
+    constant(std::string name, double value);
+
+    std::unique_ptr<expr> approximate() override;
+
+    std::string getInfo() const override;
+
 };
 
 class plus : public operation {
 public:
     using operation::operation;
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };
@@ -63,7 +76,7 @@ class minus : public operation {
 public:
     using operation::operation;
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };
@@ -72,7 +85,7 @@ class multiply : public operation {
 public:
     using operation::operation;
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };
@@ -81,7 +94,7 @@ class divide : public operation {
 public:
     using operation::operation;
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };
@@ -90,7 +103,7 @@ class power : public operation {
 public:
     using operation::operation;
 
-    std::unique_ptr<expr> evaluate() override;
+    std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
 };

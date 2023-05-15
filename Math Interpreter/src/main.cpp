@@ -16,7 +16,7 @@ int main() {
         std::unique_ptr<expr> tree = generateTree(user_input, start, user_input.length());
         std::cout << "tree: " << *tree << "\n";
 
-        result = static_cast<number*>(tree->evaluate().get())->value;
+        result = static_cast<number*>(tree->approximate().get())->value;
 
         std::cout << "result: " << result << "\n";
     }
