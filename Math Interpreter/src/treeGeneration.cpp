@@ -2,8 +2,27 @@
 
 std::unique_ptr<number> findNumber(const std::string& input, size_t& index) {
     double num = 0;
-    for (index; index < input.length() && isdigit(input[index]); index++) {
-        num = num * 10 + (input[index] - '0');
+    char val;
+    bool isDecimal = false;
+    double decimal = 10;
+    while (index < input.length()) {
+        val = input[index];
+        if (isdigit(val)) {
+            if (isDecimal) {
+                num = num + (val - static_cast<double>('0')) / decimal;
+                decimal = decimal * 10;
+            }
+            else {
+                num = num * 10 + (val - '0');
+            }
+        }
+        else if (val == '.') {
+            isDecimal = true;
+        }
+        else {
+            break;
+        }
+        index++;
     }
 
     return std::make_unique<number>(num);
@@ -97,7 +116,7 @@ std::unique_ptr<expr> generateTree(const std::string& input, size_t& index, size
     while (index < end) {
         letter = input[index];
 
-        if (isdigit(letter)) {
+        if (isdigit(letter) || letter == '.') {
             if (!lExpression) {
                 lExpression = findNumber(input, index);
             }
