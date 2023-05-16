@@ -40,8 +40,14 @@ std::string number::getInfo() const {
     return doubleToString(value);
 }
 
+const std::unordered_map<std::string, double> constantMap {
+    {"pi", 3.1415926535},
+    {"e", 2.71828182845},
+};
+
 constant::constant(std::string name, double value) 
-    : name(name), value(value) {}
+    : name(name), value(value) {
+}
 
 std::unique_ptr<expr> constant::approximate()  {
     return std::make_unique<number>(value);

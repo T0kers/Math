@@ -3,7 +3,6 @@
 int main() {
     std::string user_input;
     double result;
-
     while (true) {
         std::cout << "Type math question:\n> ";
         std::getline(std::cin, user_input);

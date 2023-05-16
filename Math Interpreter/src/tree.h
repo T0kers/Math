@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <unordered_map>
 
 enum op : char {
     PLUS = '+', MINUS = '-', MULTIPLY = '*', DIVIDE = '/', POWER = '^', lPAREN = '(', rPAREN = ')'
@@ -50,6 +51,8 @@ public:
     std::string getInfo() const override;
 };
 
+extern const std::unordered_map<std::string, double> constantMap;
+
 class constant : public expr {
 public:
     std::string name;
@@ -60,7 +63,6 @@ public:
     std::unique_ptr<expr> approximate() override;
 
     std::string getInfo() const override;
-
 };
 
 class plus : public operation {

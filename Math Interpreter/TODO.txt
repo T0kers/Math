@@ -1,5 +1,5 @@
 
-constants like pi and e
+
 Implicit multiplication
 functions: log, sin, cos, tan...
 equations

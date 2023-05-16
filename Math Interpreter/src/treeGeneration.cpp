@@ -28,26 +28,26 @@ std::unique_ptr<number> findNumber(const std::string& input, size_t& index) {
     return std::make_unique<number>(num);
 }
 
-std::unique_ptr<constant> findConstant(const std::string& input, size_t& index) {
+std::unique_ptr<expr> findConstant(const std::string& input, size_t& index) {
     std::string name = "";
     char letter;
-    std::unique_ptr<constant> con;
     while (index < input.length()) {
         letter = input[index];
         if (isalpha(letter)) {
             name = name + letter;
         }
         else {
-            std::cout << "Const: " << name << "\n";
-            if (name == "pi") {
-                con = std::make_unique<constant>("pi", 3.1415926535);
-            }
             break;
         }
         index++;
     }
-
-    return con;
+    std::cout << "Const: " << name << "\n";
+    if (constantMap.find(name) != constantMap.end()) {
+        return std::make_unique<constant>(name, constantMap.at(name));
+    }
+    else {
+        return std::make_unique<error>("Constant \"" + name + "\" does not exist.");
+    }
 }
 
 int8_t operationImportance(char c) {
@@ -149,9 +149,15 @@ std::unique_ptr<expr> generateTree(const std::string& input, size_t& index, size
         else if (isalpha(letter)) {
             if (!lExpression) {
                 lExpression = findConstant(input, index);
+                if (isError(lExpression)) {
+                    return std::move(lExpression);
+                }
             }
             else {
                 rExpression = findConstant(input, index);
+                if (isError(rExpression)) {
+                    return std::move(rExpression);
+                }
             }
         }
         else if (letter == op::lPAREN) {
