@@ -1,8 +1,12 @@
 #include "treeGeneration.h"
 
 int main() {
+    variableMap.emplace("test", std::make_unique<number>(20));
+
     std::string user_input;
-    double result;
+    std::unique_ptr<expr> tree;
+    std::unique_ptr<expr> result;
+
     while (true) {
         std::cout << "Type math question:\n> ";
         std::getline(std::cin, user_input);
@@ -12,12 +16,11 @@ int main() {
         }
 
         size_t start = 0;
-        std::unique_ptr<expr> tree = generateTree(user_input, start, user_input.length());
+        tree = generateTree(user_input, start, user_input.length());
         std::cout << "tree: " << *tree << "\n";
 
-        result = static_cast<number*>(tree->approximate().get())->value;
-
-        std::cout << "result: " << result << "\n";
+        result = tree->approximate();
+        std::cout << result->getInfo() << "\n";
     }
 
     return 0;

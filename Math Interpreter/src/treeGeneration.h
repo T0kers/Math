@@ -4,10 +4,10 @@
 
 std::unique_ptr<number> findNumber(const std::string& input, size_t& index);
 
-int8_t operationImportance(char c);
+int8_t operationImportance(op c);
+int8_t operationImportance(std::string ch);
+int8_t operationImportance(char ch);
 
-bool isError(std::unique_ptr<expr>& textExpr);
-
-std::unique_ptr<expr> findPart(const std::string& input, size_t& index, char operation);
+std::unique_ptr<expr> findPart(const std::string& input, size_t& index, op operation);
 
 std::unique_ptr<expr> generateTree(const std::string& input, size_t& index, size_t end);
