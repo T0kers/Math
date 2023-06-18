@@ -36,10 +36,6 @@ error::error(std::string msg)
     : msg(msg) {}
 
 std::unique_ptr<expr> error::approximate() {
-    return this->calcApproximate();
-}
-
-std::unique_ptr<expr> error::calcApproximate() {
     return std::make_unique<error>(msg);
 }
 
@@ -55,12 +51,8 @@ identifierPtr::identifierPtr(std::shared_ptr<expr> ptr)
     : child(ptr) {}
 
 std::unique_ptr<expr> identifierPtr::approximate() {
-    return this->calcApproximate();
-}
-
-std::unique_ptr<expr> identifierPtr::calcApproximate() {
     return child->approximate();
-};
+}
 
 std::string identifierPtr::getInfo() const {
     return child->getInfo();
@@ -70,10 +62,6 @@ identifier::identifier(std::string name)
     : name(name) {}
 
 std::unique_ptr<expr> identifier::approximate() {
-    return this->calcApproximate();
-}
-
-std::unique_ptr<expr> identifier::calcApproximate() {
     if (constantMap.find(name) != constantMap.end()) {
         return std::make_unique<number>(constantMap.at(name));
     }
@@ -98,10 +86,6 @@ assignment::assignment(std::unique_ptr<identifier> var, std::unique_ptr<expr> va
     : variable(std::move(var)), value(std::move(val)) {}
 
 std::unique_ptr<expr> assignment::approximate() {
-    return this->calcApproximate();
-}
-
-std::unique_ptr<expr> assignment::calcApproximate() {
     std::string name = variable->getInfo();
     if (constantMap.find(name) != constantMap.end()) {
         return std::make_unique<error>("This identifier name is protected.");
@@ -157,10 +141,6 @@ number::number(double value)
     : value(value) {}
 
 std::unique_ptr<expr> number::approximate() {
-    return this->calcApproximate();
-}
-
-std::unique_ptr<expr> number::calcApproximate() {
     return std::make_unique<number>(value);
 }
 

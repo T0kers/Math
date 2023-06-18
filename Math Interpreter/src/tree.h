@@ -21,7 +21,6 @@ std::string operator+(const std::string& str, op op);
 class expr {
 public:
     virtual std::unique_ptr<expr> approximate() = 0; // the method you call to calculate, its purpose is to check for errors.
-    virtual std::unique_ptr<expr> calcApproximate() = 0; // after error checks approximate() calls calcApproximate()
     virtual std::string getInfo() const = 0;
 };
 
@@ -32,7 +31,6 @@ public:
     error(std::string msg);
 
     std::unique_ptr<expr> approximate() override;
-    std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
 };
@@ -46,7 +44,6 @@ public:
     identifierPtr(std::shared_ptr<expr> ptr);
 
     std::unique_ptr<expr> approximate() override;
-    std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
 };
@@ -58,7 +55,6 @@ public:
     identifier(std::string name);
 
     std::unique_ptr<expr> approximate() override;
-    std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
 };
@@ -74,7 +70,6 @@ public:
     assignment(std::unique_ptr<identifier> var, std::unique_ptr<expr> val);
 
     std::unique_ptr<expr> approximate() override;
-    std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
 };
@@ -87,6 +82,7 @@ public:
     operation(std::unique_ptr<expr> lChild, std::unique_ptr<expr> rChild);
 
     std::unique_ptr<expr> approximate() override;
+    virtual std::unique_ptr<expr> calcApproximate() = 0;
 };
 
 std::string doubleToString(double value);
@@ -98,7 +94,6 @@ public:
     number(double value);
 
     std::unique_ptr<expr> approximate() override;
-    std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
 };
