@@ -39,7 +39,7 @@ public:
 
 bool isError(std::unique_ptr<expr>& textExpr);
 
-/*class identifierPtr : public expr {
+class identifierPtr : public expr {
 public:
     std::shared_ptr<expr> child;
 
@@ -49,7 +49,7 @@ public:
     std::unique_ptr<expr> calcApproximate() override;
 
     std::string getInfo() const override;
-};*/
+};
 
 class identifier : public expr {
 public:

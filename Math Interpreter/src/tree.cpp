@@ -51,7 +51,7 @@ bool isError(std::unique_ptr<expr>& textExpr) {
     return dynamic_cast<error*>(textExpr.get()) != nullptr;
 }
 
-/*identifierPtr::identifierPtr(std::shared_ptr<expr> ptr)
+identifierPtr::identifierPtr(std::shared_ptr<expr> ptr)
     : child(ptr) {}
 
 std::unique_ptr<expr> identifierPtr::approximate() {
@@ -64,7 +64,7 @@ std::unique_ptr<expr> identifierPtr::calcApproximate() {
 
 std::string identifierPtr::getInfo() const {
     return child->getInfo();
-}*/
+}
 
 identifier::identifier(std::string name)
     : name(name) {}
@@ -102,13 +102,17 @@ std::unique_ptr<expr> assignment::approximate() {
 }
 
 std::unique_ptr<expr> assignment::calcApproximate() {
-    variableMap[variable->getInfo()] = std::move(value);
+    std::string name = variable->getInfo();
+    if (constantMap.find(name) != constantMap.end()) {
+        return std::make_unique<error>("This identifier name is protected.");
+    }
+    variableMap[name] = std::move(value);
     
     for (const auto& i : variableMap) {
         std::cout << i.first + " " + i.second->getInfo() << "\n";
     }
 
-    return std::make_unique<number>(1);
+    return std::make_unique<identifierPtr>(variableMap.at(name));
 }
 
 std::string assignment::getInfo() const {
