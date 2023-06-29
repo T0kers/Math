@@ -76,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,6 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,12 +132,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\tree.cpp" />
     <ClCompile Include="src\treeGeneration.cpp" />
+    <ClCompile Include="src\tree\Assignment.cpp" />
+    <ClCompile Include="src\tree\ConstVar.cpp" />
+    <ClCompile Include="src\tree\Error.cpp" />
+    <ClCompile Include="src\tree\Expr.cpp" />
+    <ClCompile Include="src\tree\Function.cpp" />
+    <ClCompile Include="src\tree\Identifier.cpp" />
+    <ClCompile Include="src\tree\IdentifierPtr.cpp" />
+    <ClCompile Include="src\tree\Number.cpp" />
+    <ClCompile Include="src\tree\Operation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tree.h" />
+    <ClInclude Include="stuff\tree.h" />
     <ClInclude Include="src\treeGeneration.h" />
+    <ClInclude Include="src\tree\Assignment.h" />
+    <ClInclude Include="src\tree\ConstVar.h" />
+    <ClInclude Include="src\tree\Error.h" />
+    <ClInclude Include="src\tree\Expr.h" />
+    <ClInclude Include="src\tree\Function.h" />
+    <ClInclude Include="src\tree\Tree.h" />
+    <ClInclude Include="src\tree\Identifier.h" />
+    <ClInclude Include="src\tree\IdentifierPtr.h" />
+    <ClInclude Include="src\tree\Number.h" />
+    <ClInclude Include="src\tree\Operation.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />

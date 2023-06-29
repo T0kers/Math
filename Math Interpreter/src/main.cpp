@@ -1,11 +1,11 @@
 #include "treeGeneration.h"
 
 int main() {
-    variableMap.emplace("test", std::make_unique<number>(20));
+    variableMap.emplace("test", std::make_unique<Number>(20));
 
     std::string user_input;
-    std::unique_ptr<expr> tree;
-    std::unique_ptr<expr> result;
+    std::unique_ptr<Expr> tree;
+    std::unique_ptr<Expr> result;
 
     while (true) {
         std::cout << "Type math question:\n> ";
