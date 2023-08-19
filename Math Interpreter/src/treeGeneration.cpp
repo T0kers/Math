@@ -37,6 +37,9 @@ std::unique_ptr<Expr> findIdentifier(const std::string& input, size_t& index) {
             name = name + letter;
         }
         else {
+            if (isSymbolEqual(letter, Symbol::lPAREN)) {
+                return findPart(input, index, Symbol::FUNCTION, name);
+            }
             break;
         }
         index++;
@@ -45,25 +48,25 @@ std::unique_ptr<Expr> findIdentifier(const std::string& input, size_t& index) {
     return std::make_unique<ConstVar>(name);
 }
 
-int8_t operationImportance(Op c) {
+int8_t operationImportance(Symbol c) {
     switch (c)
     {
-    case Op::ASSIGN:
+    case Symbol::ASSIGN:
         return -1;
         break;
-    case Op::PLUS:
-    case Op::MINUS:
+    case Symbol::PLUS:
+    case Symbol::MINUS:
         return 0;
         break;
-    case Op::MULTIPLY:
-    case Op::DIVIDE:
+    case Symbol::MULTIPLY:
+    case Symbol::DIVIDE:
         return 1;
         break;
-    case Op::POWER:
+    case Symbol::POWER:
         return 2;
         break;
-    case Op::lPAREN:
-    case Op::rPAREN:
+    case Symbol::lPAREN:
+    case Symbol::rPAREN:
         return 3;
         break;
     default:
@@ -77,7 +80,7 @@ int8_t operationImportance(std::string ch) {
         return operationImportance(strToOp.at(ch));
     }
     else {
-        return operationImportance(Op::ERROR);
+        return operationImportance(Symbol::ERROR);
     }
 }
 
@@ -85,52 +88,78 @@ int8_t operationImportance(char ch) {
     return operationImportance(std::string(1, ch));
 }
 
-std::unique_ptr<Expr> findPart(const std::string& input, size_t& index, Op Operation) {
+std::unique_ptr<Expr> findPart(const std::string& input, size_t& index, Symbol Operation, const std::string& name) {
     std::cout << "operation: " << opToStr.at(Operation) << "\n";
     char letter;
     size_t search_index = index;
     int8_t importance = operationImportance(Operation);
     while (search_index < input.length()) {
         letter = input[search_index];
-        if (isOpEqual(letter, Op::lPAREN)) {
+        if (isSymbolEqual(letter, Symbol::lPAREN)) {
             if (search_index == index) {
                 index++;
             }
             uint8_t parenthesis_count = 1;
             while (parenthesis_count != 0) {
                 search_index++;
-                try {
-                    if (search_index > input.length()) {
-                        throw std::string("Parentheses are not matching.");
-                    }
-                    else {
-                        letter = input[search_index];
-                    }
+                if (search_index > input.length()) {
+                    throw std::exception("Parentheses are not matching.");
                 }
-                catch(std::string& msg) {
-                    std::cout << "ERROR:\n";
-                    return std::make_unique<Error>(msg);
+                else {
+                    letter = input[search_index];
                 }
                 
-                if (isOpEqual(letter, Op::lPAREN)) {
+                if (isSymbolEqual(letter, Symbol::lPAREN)) {
                     parenthesis_count += 1;
                 }
-                else if (isOpEqual(letter, Op::rPAREN)) {
+                else if (isSymbolEqual(letter, Symbol::rPAREN)) {
                     parenthesis_count -= 1;
                 }
             }
         }
-        if (isOpEqual(letter, Op::rPAREN)) {
+        if (isSymbolEqual(letter, Symbol::rPAREN)) {
+            if (Operation == Symbol::FUNCTION) {
+                return generateFunction(input, index, search_index, name);
+            }
             return generateTree(input, index, search_index);
         }
         else if (importance >= operationImportance(letter)) {
-            if (!(isOpEqual(letter, Op::MINUS) && operationImportance(input[search_index - 1]) < 3)) {
+            if (!(isSymbolEqual(letter, Symbol::MINUS) && operationImportance(input[search_index - 1]) < 3)) {
                 return generateTree(input, index, search_index);
             }
         }
         search_index++;
     }
     return generateTree(input, index, search_index);
+}
+
+std::unique_ptr<Expr> generateFunction(const std::string& input, size_t& index, size_t end, const std::string& funcName) {
+    size_t i = 0;
+    std::vector<std::unique_ptr<Expr>> args;
+    std::unique_ptr<Expr> arg;
+    std::stringstream ss(input.substr(index, end - index));
+    std::string sArg;
+    while (!ss.eof()) {
+        getline(ss, sArg, ','); // TODO: Get comma out of here
+        i = 0;
+        arg = generateTree(sArg, i, sArg.length());
+        if (arg) {
+            args.push_back(std::move(arg));
+        }
+        else {
+            std::ostringstream e;
+            e << "Illegal arguments in function: '" << funcName << "'";
+            auto er = e.str();
+            throw std::exception(er.c_str());
+        }
+    }
+    index = end;
+
+    for (const auto& i : args) {
+        std::cout << i->getInfo() << std::endl;
+    }
+
+    return std::make_unique<Function>(funcName, args);
 }
 
 std::unique_ptr<Expr> generateTree(const std::string& input, size_t& index, size_t end) {
@@ -152,81 +181,80 @@ std::unique_ptr<Expr> generateTree(const std::string& input, size_t& index, size
         else if (isalpha(letter)) {
             if (!lExpression) {
                 lExpression = findIdentifier(input, index);
-                if (isError(lExpression)) {
+                /*if (isError(lExpression)) {
                     return std::move(lExpression);
-                }
+                }*/
             }
             else {
                 rExpression = findIdentifier(input, index);
-                if (isError(rExpression)) {
+                /*if (isError(rExpression)) {
                     return std::move(rExpression);
-                }
+                }*/
             }
         }
-        else if (isOpEqual(letter, Op::lPAREN)) {
+        else if (isSymbolEqual(letter, Symbol::lPAREN)) {
             if (!lExpression) {
-                lExpression = findPart(input, index, Op::lPAREN);
-                if (isError(lExpression)) {
+                lExpression = findPart(input, index, Symbol::lPAREN);
+                /*if (isError(lExpression)) {
                     return std::move(lExpression);
-                }
+                }*/
             }
         }
-        else if (isOpEqual(letter, Op::PLUS)) {
+        else if (isSymbolEqual(letter, Symbol::PLUS)) {
             index++;
-            rExpression = findPart(input, index, Op::PLUS);
-            if (isError(rExpression)) {
+            rExpression = findPart(input, index, Symbol::PLUS);
+           /* if (isError(rExpression)) {
                 return std::move(rExpression);
-            }
-            lExpression = std::make_unique<Plus>(std::move(lExpression), std::move(rExpression));
+            }*/
+            lExpression = std::make_unique<NewOperation>(NewOperation::Operator::addition, std::move(lExpression), std::move(rExpression));
         }
-        else if (isOpEqual(letter, Op::MINUS)) {
+        else if (isSymbolEqual(letter, Symbol::MINUS)) {
             index++;
             if (!lExpression) {
-                lExpression = findPart(input, index, Op::MULTIPLY);
-                if (isError(lExpression)) {
+                lExpression = findPart(input, index, Symbol::MULTIPLY);
+                /*if (isError(lExpression)) {
                     return std::move(lExpression);
-                }
-                lExpression = std::make_unique<Multiply>(std::make_unique<Number>(-1), std::move(lExpression));
+                }*/
+                lExpression = std::make_unique<NewOperation>(NewOperation::Operator::multiplication, std::make_unique<Number>(-1), std::move(lExpression));
             }
             else {
-                rExpression = findPart(input, index, Op::MINUS);
-                if (isError(rExpression)) {
+                rExpression = findPart(input, index, Symbol::MINUS);
+                /*if (isError(rExpression)) {
                     return std::move(rExpression);
-                }
-                lExpression = std::make_unique<Minus>(std::move(lExpression), std::move(rExpression));
+                }*/
+                lExpression = std::make_unique<NewOperation>(NewOperation::Operator::subtraction, std::move(lExpression), std::move(rExpression));
             }
         }
-        else if (isOpEqual(letter, Op::MULTIPLY)) {
+        else if (isSymbolEqual(letter, Symbol::MULTIPLY)) {
             index++;
-            rExpression = findPart(input, index, Op::MULTIPLY);
-            if (isError(rExpression)) {
+            rExpression = findPart(input, index, Symbol::MULTIPLY);
+            /*if (isError(rExpression)) {
                 return std::move(rExpression);
-            }
-            lExpression = std::make_unique<Multiply>(std::move(lExpression), std::move(rExpression));
-            rExpression.reset();
+            }*/
+            lExpression = std::make_unique<NewOperation>(NewOperation::Operator::multiplication, std::move(lExpression), std::move(rExpression));
         }
-        else if (isOpEqual(letter, Op::DIVIDE)) {
+        else if (isSymbolEqual(letter, Symbol::DIVIDE)) {
             index++;
-            rExpression = findPart(input, index, Op::DIVIDE);
-            if (isError(rExpression)) {
+            rExpression = findPart(input, index, Symbol::DIVIDE);
+            /*if (isError(rExpression)) {
                 return std::move(rExpression);
-            }
-            lExpression = std::make_unique<Divide>(std::move(lExpression), std::move(rExpression));
+            }*/
+            lExpression = std::make_unique<NewOperation>(NewOperation::Operator::division, std::move(lExpression), std::move(rExpression));
         }
-        else if (isOpEqual(letter, Op::POWER)) {
+        else if (isSymbolEqual(letter, Symbol::POWER)) {
             index++;
-            rExpression = findPart(input, index, Op::POWER);
-            if (isError(rExpression)) {
+            rExpression = findPart(input, index, Symbol::POWER);
+            /*if (isError(rExpression)) {
                 return std::move(rExpression);
-            }
-            lExpression = std::make_unique<Power>(std::move(lExpression), std::move(rExpression));
+            }*/
+            lExpression = std::make_unique<NewOperation>(NewOperation::Operator::exponentiation, std::move(lExpression), std::move(rExpression));
         }
-        else if (input.substr(index, opToStr.at(Op::ASSIGN).length()) == opToStr.at(Op::ASSIGN)) {
-            index += opToStr.at(Op::ASSIGN).length();
-            rExpression = findPart(input, index, Op::ASSIGN);
-            if (isError(rExpression)) {
+        else if (input.substr(index, opToStr.at(Symbol::ASSIGN).length()) == opToStr.at(Symbol::ASSIGN)) {
+            index += opToStr.at(Symbol::ASSIGN).length();
+            rExpression = findPart(input, index, Symbol::ASSIGN);
+            /*if (isError(rExpression)) {
                 return std::move(rExpression);
-            }
+            }*/
             auto lIdentifier = dynamic_cast<Identifier*>(lExpression.get());
             if (lIdentifier) {
                 // lExpression is an identifier
@@ -234,7 +262,7 @@ std::unique_ptr<Expr> generateTree(const std::string& input, size_t& index, size
             }
             else {
                 // lExpression is not an identifier
-                return std::make_unique<Error>("Left side of assignment is not an identifier.");
+                throw std::exception("Left side of assignment is not an identifier.");
             }
         }
         else {

@@ -22,20 +22,20 @@ std::unique_ptr<Expr> Number::clone() const {
     return std::make_unique<Number>(*this);
 }
 
-std::unique_ptr<Expr> Number::approximate() {
+//std::unique_ptr<Expr> Number::approximate() {
+//    return std::make_unique<Number>(value);
+//}
+
+std::unique_ptr<Expr> Number::approximate(const paramArgMap& extraMap) {
     return std::make_unique<Number>(value);
 }
 
-std::unique_ptr<Expr> Number::approximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
-    return this->approximate();
-}
+//std::unique_ptr<Expr> Number::evaluate() {
+//    return std::make_unique<Number>(value);
+//}
 
-std::unique_ptr<Expr> Number::evaluate() {
+std::unique_ptr<Expr> Number::evaluate(const paramArgMap& extraMap) {
     return std::make_unique<Number>(value);
-}
-
-std::unique_ptr<Expr> Number::evaluate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
-    return this->evaluate();
 }
 
 std::string Number::getInfo() const {

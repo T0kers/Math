@@ -12,19 +12,19 @@ std::unique_ptr<Expr> IdentifierPtr::clone() const {
     return std::make_unique<IdentifierPtr>(*this);
 }
 
-std::unique_ptr<Expr> IdentifierPtr::approximate() {
-    return child->approximate();
-}
+//std::unique_ptr<Expr> IdentifierPtr::approximate() {
+//    return child->approximate();
+//}
 
-std::unique_ptr<Expr> IdentifierPtr::approximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
+std::unique_ptr<Expr> IdentifierPtr::approximate(const paramArgMap& extraMap) {
     return child->approximate(extraMap);
 }
 
-std::unique_ptr<Expr> IdentifierPtr::evaluate() {
-    return child->evaluate();
-}
+//std::unique_ptr<Expr> IdentifierPtr::evaluate() {
+//    return child->evaluate();
+//}
 
-std::unique_ptr<Expr> IdentifierPtr::evaluate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
+std::unique_ptr<Expr> IdentifierPtr::evaluate(const paramArgMap& extraMap) {
     return child->evaluate(extraMap);
 }
 

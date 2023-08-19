@@ -11,55 +11,88 @@ std::unique_ptr<Expr> Assignment::clone() const {
     return std::make_unique<Assignment>(*this);
 }
 
-std::unique_ptr<Expr> Assignment::approximate() {
-    std::string name = variable->getName();
-    if (constantMap.find(name) != constantMap.end()) {
-        return std::make_unique<Error>("This identifier name is protected.");
-    }
-    variableMap[name] = value->evaluate();
-
-    for (const auto& i : variableMap) {
-        std::cout << i.first + " " + i.second->getInfo() << "\n";
-    }
-
-    return variableMap.at(name)->approximate();
-}
-
-std::unique_ptr<Expr> Assignment::approximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
+std::unique_ptr<Expr> Assignment::approximate(const paramArgMap& extraMap) {
     std::string name = variable->getName();
 
     if (constantMap.find(name) != constantMap.end()) {
-        return std::make_unique<Error>("This identifier name is protected.");
+        throw std::exception("This identifier name is protected.");
     }
+
+    auto result = value->approximate(extraMap);
+    /*if (isError(result)) {
+        return result;
+    }*/
 
     if (extraMap.find(name) != extraMap.end()) {
         ConstVar* varPtr = dynamic_cast<ConstVar*>(extraMap.at(name).get());
         if (varPtr != nullptr) {
-            variableMap[varPtr->name] = value->evaluate(extraMap);
-            return variableMap.at(name)->approximate();
+            variableMap[varPtr->name] = std::move(result);
+            return variableMap.at(name)->clone();
         }
     }
-    variableMap[name] = value->evaluate();
+    variableMap[name] = std::move(result);
 
-    return variableMap.at(name)->approximate();
+    return variableMap.at(name)->clone();
 }
 
-std::unique_ptr<Expr> Assignment::evaluate() {
-    auto result = this->approximate(); // ik brug approx her tror jeg
-    if (isError(result)) {
-        return std::make_unique<Assignment>(variable->cloneIdentifier(), value->clone());
-    }
-    return result->clone();
-}
+std::unique_ptr<Expr> Assignment::evaluate(const paramArgMap& extraMap) {
+    std::string name = variable->getName();
 
-std::unique_ptr<Expr> Assignment::evaluate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) {
-    auto result = this->approximate(extraMap); // ik brug approx her tror jeg
-    if (isError(result)) {
-        return std::make_unique<Assignment>(variable->cloneIdentifier(), value->clone());
+    if (dynamic_cast<ConstVar*>(variable.get())) {
+        if (constantMap.find(name) != constantMap.end()) {
+            throw std::exception("This identifier name is protected.");
+        }
+        try {
+            auto result = value->evaluate(extraMap);
+        }
+        catch (...) {
+
+        }
+        //if (isError(result)) {
+        //    return result;
+        //}
+
+        if (extraMap.find(name) != extraMap.end()) {
+            // check if variable is another variable, and then use that instead for creating new variable (i think this is bad way)
+            ConstVar* varPtr = dynamic_cast<ConstVar*>(extraMap.at(name).get());
+            // make identifier function to get "to the bottom" of variable saved IN extraMap
+            // ALWAYS change variable in extraMap, even if error, because it is wrong player input
+            if (varPtr != nullptr) {
+                variableMap[varPtr->name] = std::move(value); // !!!
+                return variableMap.at(name)->clone();
+            }
+        }
+        variableMap[name] = std::move(value); // !!!
+        return variableMap.at(name)->clone();
     }
-    return result->clone();
+    Function* derivedPtr = dynamic_cast<Function*>(variable.get());
+    if (derivedPtr) {
+        std::vector<std::string> params;
+        bool areParams = true;
+        for (const auto& param : derivedPtr->arguments) {
+            auto var = dynamic_cast<ConstVar*>(param.get());
+            if (var) {
+                params.push_back(var->getName());
+            }
+            else {
+                areParams = false;
+                break;
+            }
+        }
+        if (areParams) {
+            functionMap[name] = {params, std::move(value)};
+            return functionMap.at(name).second->clone();
+        }
+        else {
+            throw std::exception("Parameters needs to be variables.");
+        }
+    }
+    else {
+        throw std::exception("Illegal.");
+    }
+    
 }
 
 std::string Assignment::getInfo() const {
-    return variable->getInfo() + " " + Op::ASSIGN + " " + value->getInfo();
+    return '(' + variable->getInfo() + Symbol::ASSIGN + value->getInfo() + ')';
 }

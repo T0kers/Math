@@ -4,3 +4,5 @@ Implicit multiplication
 functions: log, sin, cos, tan...
 equations
 isolating equations
+
+måske gøt så extraMap bliver kopiret

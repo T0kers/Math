@@ -1,81 +1,130 @@
 #pragma once
 #include "Expr.h"
 
-class Operation : public Expr {
+class NewOperation : public Expr {
 public:
+    enum class Operator {
+        error = -1, addition, subtraction, multiplication, division, exponentiation
+    };
+
     std::unique_ptr<Expr> lChild;
     std::unique_ptr<Expr> rChild;
+    Operator oper;
 
-    Operation(std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
-    Operation(const Operation& obj);
+    // struct is used to get default parameter.
+    struct operationFunc {
+        std::unique_ptr<Expr> operator()(const paramArgMap& extraMap) { return f(extraMap); }
+        std::function<std::unique_ptr<Expr>(const paramArgMap& extraMap)> f;
+    };
+
+    operationFunc operationApproximate;
+    operationFunc operationEvaluate;
+
+    NewOperation(Symbol oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
+    NewOperation(Operator oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
+    NewOperation(const NewOperation& obj);
+
+    void setOperator(Operator op);
+    Operator symbolToOperator(Symbol sy);
+    virtual std::unique_ptr<Expr> clone() const override;
 
     bool hasConst();
-    std::unique_ptr<Expr> approximate() override;
-    std::unique_ptr<Expr> approximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-    virtual std::unique_ptr<Expr> calcApproximate() = 0;
-    virtual std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) = 0;
-
-    std::unique_ptr<Expr> evaluate() override;
-    std::unique_ptr<Expr> evaluate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-};
-
-class Plus : public Operation {
-public:
-    using Operation::Operation;
-
-    std::unique_ptr<Expr> clone() const override;
-
-    std::unique_ptr<Expr> calcApproximate() override;
-    std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-
 
     std::string getInfo() const override;
+
+    std::unique_ptr<Expr> approximate(const paramArgMap& extraMap) override;
+
+    std::unique_ptr<Expr> evaluate(const paramArgMap& extraMap) override;
+
+    std::unique_ptr<Expr> additionApproximate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> subtractionApproximate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> multiplicationApproximate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> divisionApproximate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> exponentiationApproximate(const paramArgMap& extraMap);
+
+    std::unique_ptr<Expr> additionEvaluate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> subtractionEvaluate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> multiplicationEvaluate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> divisionEvaluate(const paramArgMap& extraMap);
+    std::unique_ptr<Expr> exponentiationEvaluate(const paramArgMap& extraMap);
 };
 
-class Minus : public Operation {
-public:
-    using Operation::Operation;
 
-    std::unique_ptr<Expr> clone() const override;
-
-    std::unique_ptr<Expr> calcApproximate() override;
-    std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-
-    std::string getInfo() const override;
-};
-
-class Multiply : public Operation {
-public:
-    using Operation::Operation;
-
-    std::unique_ptr<Expr> clone() const override;
-
-    std::unique_ptr<Expr> calcApproximate() override;
-    std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-
-    std::string getInfo() const override;
-};
-
-class Divide : public Operation {
-public:
-    using Operation::Operation;
-
-    std::unique_ptr<Expr> clone() const override;
-
-    std::unique_ptr<Expr> calcApproximate() override;
-    std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-
-    std::string getInfo() const override;
-};
-
-class Power : public Operation {
-public:
-    using Operation::Operation;
-
-    std::unique_ptr<Expr> clone() const override;
-
-    std::unique_ptr<Expr> calcApproximate() override;
-    std::unique_ptr<Expr> calcApproximate(std::map<std::string, std::unique_ptr<Expr>>& extraMap) override;
-
-    std::string getInfo() const override;
-};
+//class Operation : public Expr {
+//public:
+//    std::unique_ptr<Expr> lChild;
+//    std::unique_ptr<Expr> rChild;
+//
+//    Operation(std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
+//    Operation(const Operation& obj);
+//
+//    bool hasConst();
+//    std::unique_ptr<Expr> approximate(const paramArgMap& extraMap) override;
+//
+//    //virtual std::unique_ptr<Expr> calcApproximate() = 0;
+//    virtual std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) = 0;
+//
+//    //std::unique_ptr<Expr> evaluate() override;
+//    std::unique_ptr<Expr> evaluate(const paramArgMap& extraMap) override;
+//};
+//
+//class Plus : public Operation {
+//public:
+//    using Operation::Operation;
+//
+//    std::unique_ptr<Expr> clone() const override;
+//
+//    //std::unique_ptr<Expr> calcApproximate() override;
+//    std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) override;
+//
+//
+//    std::string getInfo() const override;
+//};
+//
+//class Minus : public Operation {
+//public:
+//    using Operation::Operation;
+//
+//    std::unique_ptr<Expr> clone() const override;
+//
+//    //std::unique_ptr<Expr> calcApproximate() override;
+//    std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) override;
+//
+//    std::string getInfo() const override;
+//};
+//
+//class Multiply : public Operation {
+//public:
+//    using Operation::Operation;
+//
+//    std::unique_ptr<Expr> clone() const override;
+//
+//    //std::unique_ptr<Expr> calcApproximate() override;
+//    std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) override;
+//
+//    std::string getInfo() const override;
+//};
+//
+//class Divide : public Operation {
+//public:
+//    using Operation::Operation;
+//
+//    std::unique_ptr<Expr> clone() const override;
+//
+//    //std::unique_ptr<Expr> calcApproximate() override;
+//    std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) override;
+//
+//    std::string getInfo() const override;
+//};
+//
+//class Power : public Operation {
+//public:
+//    using Operation::Operation;
+//
+//    std::unique_ptr<Expr> clone() const override;
+//
+//    //std::unique_ptr<Expr> calcApproximate() override;
+//    std::unique_ptr<Expr> calcapproximate(const paramArgMap& extraMap) override;
+//
+//    std::string getInfo() const override;
+//};
