@@ -11,24 +11,12 @@ public:
     std::unique_ptr<Expr> rChild;
     Operator oper;
 
-    // struct is used to get default parameter.
-    struct operationFunc {
-        std::unique_ptr<Expr> operator()(const paramArgMap& extraMap) { return f(extraMap); }
-        std::function<std::unique_ptr<Expr>(const paramArgMap& extraMap)> f;
-    };
-
-    operationFunc operationApproximate;
-    operationFunc operationEvaluate;
-
     NewOperation(Symbol oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
     NewOperation(Operator oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild);
     NewOperation(const NewOperation& obj);
 
-    void setOperator(Operator op);
     Operator symbolToOperator(Symbol sy);
     virtual std::unique_ptr<Expr> clone() const override;
-
-    bool hasConst();
 
     std::string getInfo() const override;
 

@@ -139,12 +139,12 @@
     <ClCompile Include="src\tree\Expr.cpp" />
     <ClCompile Include="src\tree\Function.cpp" />
     <ClCompile Include="src\tree\Identifier.cpp" />
-    <ClCompile Include="src\tree\IdentifierPtr.cpp" />
     <ClCompile Include="src\tree\Number.cpp" />
     <ClCompile Include="src\tree\Operation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tree.h" />
+    <ClInclude Include="src\tree\Identifier.h" />
     <ClInclude Include="stuff\tree.h" />
     <ClInclude Include="src\treeGeneration.h" />
     <ClInclude Include="src\tree\Assignment.h" />
@@ -153,8 +153,6 @@
     <ClInclude Include="src\tree\Expr.h" />
     <ClInclude Include="src\tree\Function.h" />
     <ClInclude Include="src\tree\Tree.h" />
-    <ClInclude Include="src\tree\Identifier.h" />
-    <ClInclude Include="src\tree\IdentifierPtr.h" />
     <ClInclude Include="src\tree\Number.h" />
     <ClInclude Include="src\tree\Operation.h" />
   </ItemGroup>

@@ -7,48 +7,13 @@
 
 
 NewOperation::NewOperation(Symbol oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild)
-    : oper(symbolToOperator(oper)), lChild(std::move(lChild)), rChild(std::move(rChild)) {
-    setOperator(this->oper);
-}
+    : oper(symbolToOperator(oper)), lChild(std::move(lChild)), rChild(std::move(rChild)) {}
 
 NewOperation::NewOperation(Operator oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild)
-    : oper(oper), lChild(std::move(lChild)), rChild(std::move(rChild)) {
-    setOperator(oper);
-}
+    : oper(oper), lChild(std::move(lChild)), rChild(std::move(rChild)) {}
 
 NewOperation::NewOperation(const NewOperation& obj)
-    : oper(obj.oper),
-      lChild(obj.lChild->clone()),
-      rChild(obj.rChild->clone()) {
-    setOperator(obj.oper);
-}
-
-void NewOperation::setOperator(Operator op) {
-    switch (op) {
-    case Operator::addition:
-        operationApproximate.f = [this](const paramArgMap& extraMap) { return additionApproximate(extraMap); };
-        operationEvaluate.f = [this](const paramArgMap& extraMap) { return additionEvaluate(extraMap); };
-        break;
-    case Operator::subtraction:
-        operationApproximate.f = [this](const paramArgMap& extraMap) { return subtractionApproximate(extraMap); };
-        operationEvaluate.f = [this](const paramArgMap& extraMap) { return subtractionEvaluate(extraMap); };
-        break;
-    case Operator::multiplication:
-        operationApproximate.f = [this](const paramArgMap& extraMap) { return multiplicationApproximate(extraMap); };
-        operationEvaluate.f = [this](const paramArgMap& extraMap) { return multiplicationEvaluate(extraMap); };
-        break;
-    case Operator::division:
-        operationApproximate.f = [this](const paramArgMap& extraMap) { return divisionApproximate(extraMap); };
-        operationEvaluate.f = [this](const paramArgMap& extraMap) { return divisionEvaluate(extraMap); };
-        break;
-    case Operator::exponentiation:
-        operationApproximate.f = [this](const paramArgMap& extraMap) { return exponentiationApproximate(extraMap); };
-        operationEvaluate.f = [this](const paramArgMap& extraMap) { return exponentiationEvaluate(extraMap); };
-        break;
-    default:
-        break;
-    }
-}
+    : oper(obj.oper), lChild(obj.lChild->clone()), rChild(obj.rChild->clone()) {}
 
 NewOperation::Operator NewOperation::symbolToOperator(Symbol sy) {
     switch (sy) {
@@ -75,10 +40,6 @@ NewOperation::Operator NewOperation::symbolToOperator(Symbol sy) {
 
 std::unique_ptr<Expr> NewOperation::clone() const {
     return std::make_unique<NewOperation>(*this);
-}
-
-bool NewOperation::hasConst() { // this only checks if it is const OR var. I think it only should return true if is constant
-    return (dynamic_cast<ConstVar*>(lChild.get()) != nullptr) || (dynamic_cast<ConstVar*>(rChild.get()) != nullptr);
 }
 
 std::string NewOperation::getInfo() const {
@@ -109,11 +70,53 @@ std::string NewOperation::getInfo() const {
 }
 
 std::unique_ptr<Expr> NewOperation::approximate(const paramArgMap& extraMap) {
-    return this->operationApproximate(extraMap);
+    switch (oper)
+    {
+    case NewOperation::Operator::addition:
+        return this->additionApproximate(extraMap);
+        break;
+    case NewOperation::Operator::subtraction:
+        return this->subtractionApproximate(extraMap);
+        break;
+    case NewOperation::Operator::multiplication:
+        return this->multiplicationApproximate(extraMap);
+        break;
+    case NewOperation::Operator::division:
+        return this->divisionApproximate(extraMap);
+        break;
+    case NewOperation::Operator::exponentiation:
+        return this->exponentiationApproximate(extraMap);
+        break;
+    case NewOperation::Operator::error:
+    default:
+        throw std::exception("There was an error with an operation.");
+        break;
+    }
 }
 
 std::unique_ptr<Expr> NewOperation::evaluate(const paramArgMap& extraMap) {
-    return this->operationEvaluate(extraMap);
+    switch (oper)
+    {
+    case NewOperation::Operator::addition:
+        return this->additionEvaluate(extraMap);
+        break;
+    case NewOperation::Operator::subtraction:
+        return this->subtractionEvaluate(extraMap);
+        break;
+    case NewOperation::Operator::multiplication:
+        return this->multiplicationEvaluate(extraMap);
+        break;
+    case NewOperation::Operator::division:
+        return this->divisionEvaluate(extraMap);
+        break;
+    case NewOperation::Operator::exponentiation:
+        return this->exponentiationEvaluate(extraMap);
+        break;
+    case NewOperation::Operator::error:
+    default:
+        throw std::exception("There was an error with an operation.");
+        break;
+    }
 }
 
 std::unique_ptr<Expr> NewOperation::additionApproximate(const paramArgMap& extraMap) {
@@ -165,148 +168,3 @@ std::unique_ptr<Expr> NewOperation::exponentiationEvaluate(const paramArgMap& ex
     }
     return this->clone();
 }
-
-
-
-
-//Operation::Operation(std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild)
-//    : lChild(std::move(lChild)), rChild(std::move(rChild)) {}
-//
-//Operation::Operation(const Operation& obj)
-//    : lChild(obj.lChild->clone()),
-//    rChild(obj.rChild->clone()) {}
-//
-//bool Operation::hasConst() {
-//    return (dynamic_cast<ConstVar*>(lChild.get()) != nullptr) || (dynamic_cast<ConstVar*>(rChild.get()) != nullptr);
-//}
-//
-////std::unique_ptr<Expr> Operation::approximate() {
-////    std::string errorMsg = "";
-////
-////    std::unique_ptr<Expr> left = lChild->approximate();
-////    std::unique_ptr<Expr> right = rChild->approximate();
-////
-////    if (isError(left)) {
-////        errorMsg += left->getInfo() + "\n";
-////    }
-////    if (isError(right)) {
-////        errorMsg += right->getInfo() + "\n";
-////    }
-////
-////    if (errorMsg.empty()) {
-////        return this->calcApproximate();
-////    }
-////    else {
-////        return std::make_unique<Error>(errorMsg);
-////    }
-////}
-//
-//std::unique_ptr<Expr> Operation::approximate(const paramArgMap& extraMap) {
-//    std::string errorMsg = "";
-//
-//    std::unique_ptr<Expr> left = lChild->approximate(extraMap);
-//    std::unique_ptr<Expr> right = rChild->approximate(extraMap);
-//
-//    /*if (isError(left)) {
-//        errorMsg += left->getInfo() + "\n";
-//    }
-//    if (isError(right)) {
-//        errorMsg += right->getInfo() + "\n";
-//    }
-//
-//    if (errorMsg.empty()) {
-//        return this->calcApproximate(extraMap);
-//    }
-//    else {
-//        return std::make_unique<Error>(errorMsg);
-//    }*/
-//    return this->calcApproximate(extraMap);
-//}
-//
-////std::unique_ptr<Expr> Operation::evaluate() {
-////    return this->evaluate(); // bruh, stack overflow
-////}
-//
-//std::unique_ptr<Expr> Operation::evaluate(const paramArgMap& extraMap) {
-//    return this->evaluate(extraMap); // bruh, stack overflow
-//} // der skal laves en calcEvaluate i hver subclass, ELLER ændre operation, til at den ikke har subclasses.
-//
-//std::unique_ptr<Expr> Plus::clone() const {
-//    return std::make_unique<Plus>(*this);
-//}
-//
-////std::unique_ptr<Expr> Plus::calcApproximate() {
-////    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate().get())->value + static_cast<Number*>(rChild->approximate().get())->value);
-////}
-//
-//std::unique_ptr<Expr> Plus::calcapproximate(const paramArgMap& extraMap) {
-//    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate(extraMap).get())->value + static_cast<Number*>(rChild->approximate(extraMap).get())->value);
-//}
-//
-//std::string Plus::getInfo() const {
-//    return "(" + lChild->getInfo() + Symbol::PLUS + rChild->getInfo() + ")";
-//}
-//
-//std::unique_ptr<Expr> Minus::clone() const {
-//    return std::make_unique<Minus>(*this);
-//}
-//
-////std::unique_ptr<Expr> Minus::calcApproximate() {
-////    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate().get())->value - static_cast<Number*>(rChild->approximate().get())->value);
-////}
-//
-//std::unique_ptr<Expr> Minus::calcapproximate(const paramArgMap& extraMap) {
-//    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate(extraMap).get())->value - static_cast<Number*>(rChild->approximate(extraMap).get())->value);
-//}
-//
-//std::string Minus::getInfo() const {
-//    return "(" + lChild->getInfo() + Symbol::MINUS + rChild->getInfo() + ")";
-//}
-//
-//std::unique_ptr<Expr> Multiply::clone() const {
-//    return std::make_unique<Multiply>(*this);
-//}
-//
-////std::unique_ptr<Expr> Multiply::calcApproximate() {
-////    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate().get())->value * static_cast<Number*>(rChild->approximate().get())->value);
-////}
-//
-//std::unique_ptr<Expr> Multiply::calcapproximate(const paramArgMap& extraMap) {
-//    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate(extraMap).get())->value * static_cast<Number*>(rChild->approximate(extraMap).get())->value);
-//}
-//
-//std::string Multiply::getInfo() const {
-//    return "(" + lChild->getInfo() + Symbol::MULTIPLY + rChild->getInfo() + ")";
-//}
-//
-//std::unique_ptr<Expr> Divide::clone() const {
-//    return std::make_unique<Divide>(*this);
-//}
-//
-////std::unique_ptr<Expr> Divide::calcApproximate() {
-////    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate().get())->value / static_cast<Number*>(rChild->approximate().get())->value);
-////}
-//
-//std::unique_ptr<Expr> Divide::calcapproximate(const paramArgMap& extraMap) {
-//    return std::make_unique<Number>(static_cast<Number*>(lChild->approximate(extraMap).get())->value / static_cast<Number*>(rChild->approximate(extraMap).get())->value);
-//}
-//
-//std::string Divide::getInfo() const {
-//    return "(" + lChild->getInfo() + Symbol::DIVIDE + rChild->getInfo() + ")";
-//}
-//
-//std::unique_ptr<Expr> Power::clone() const {
-//    return std::make_unique<Power>(*this);
-//}
-//
-////std::unique_ptr<Expr> Power::calcApproximate() {
-////    return std::make_unique<Number>(pow(static_cast<Number*>(lChild->approximate().get())->value, static_cast<Number*>(rChild->approximate().get())->value));
-////}
-//
-//std::unique_ptr<Expr> Power::calcapproximate(const paramArgMap& extraMap) {
-//    return std::make_unique<Number>(pow(static_cast<Number*>(lChild->approximate(extraMap).get())->value, static_cast<Number*>(rChild->approximate(extraMap).get())->value));
-//}
-//
-//std::string Power::getInfo() const {
-//    return "(" + lChild->getInfo() + Symbol::POWER + rChild->getInfo() + ")";
-//}

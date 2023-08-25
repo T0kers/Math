@@ -10,6 +10,10 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <typeinfo>
+#include <typeindex>
+#include <cassert>
+#include <cmath>
 
 enum class Symbol {
     ERROR = -1, PLUS = 0, MINUS, MULTIPLY, DIVIDE, POWER, lPAREN, rPAREN, ASSIGN, EQUAL, FUNCTION, COMMA

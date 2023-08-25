@@ -55,24 +55,14 @@ const std::string& ConstVar::getName() {
     return name;
 }
 
-//std::unique_ptr<Expr> ConstVar::evaluate() {
-//    if (constantMap.find(name) != constantMap.end()) {
-//        return std::make_unique<ConstVar>(name);
-//    }
-//    else if (variableMap.find(name) != variableMap.end()) {
-//        return variableMap.at(name)->evaluate();
-//    }
-//    return std::make_unique<ConstVar>(name);
-//}
-
 std::unique_ptr<Expr> ConstVar::evaluate(const paramArgMap& extraMap) {
-    if (constantMap.find(name) != constantMap.end()) {
-        return std::make_unique<ConstVar>(name);
+    if (constantMap.count(name)) {
+        return this->clone();
     }
-    else if (extraMap.find(name) != extraMap.end()) {
+    else if (extraMap.count(name)) {
         return extraMap.at(name)->evaluate(extraMap);
     }
-    else if (variableMap.find(name) != variableMap.end()) {
+    else if (variableMap.count(name)) {
         return variableMap.at(name)->evaluate(extraMap);
     }
     return std::make_unique<ConstVar>(name);
