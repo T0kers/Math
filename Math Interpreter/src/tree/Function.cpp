@@ -106,8 +106,12 @@ std::unordered_map<std::string, std::pair<std::vector<std::string>, std::shared_
 std::map<std::string, Function::functionType> Function::defaultFunctionMap = { 
     {"sin", &defaultFunction::sine },
     {"cos", &defaultFunction::cosine},
+    {"tan", &defaultFunction::tangent},
     {"log", &defaultFunction::logb},
     {"ln", &defaultFunction::ln},
+    {"abs", &defaultFunction::absolute},
+    {"root", &defaultFunction::nroot},
+    {"sqrt", &defaultFunction::sroot},
 };
 
 std::unique_ptr<Expr> Function::callDefault(const paramArgMap& extraMap) {
@@ -134,11 +138,11 @@ void defaultFunction::getArguments(std::vector<std::unique_ptr<Expr>>& arguments
 }
 
 template <typename Arg, typename... Args>
-void defaultFunction::getArgumentsRecursive(std::vector<std::unique_ptr<Expr>>& arguments, size_t& index, const Function::paramArgMap& extraMap, Arg& arg, Args&... args) { // line 135
+void defaultFunction::getArgumentsRecursive(std::vector<std::unique_ptr<Expr>>& arguments, size_t& index, const Function::paramArgMap& extraMap, Arg& arg, Args&... args) {
     if (arguments.size() >= index) {
         arg = arguments[index]->evaluate(extraMap);
         index++;
-        defaultFunction::getArgumentsRecursive(arguments, index, extraMap, args...); // line 139
+        defaultFunction::getArgumentsRecursive(arguments, index, extraMap, args...);
     }
 }
 
@@ -172,6 +176,17 @@ std::unique_ptr<Expr> defaultFunction::cosine(std::vector<std::unique_ptr<Expr>>
     throw std::exception("Function error!!!");
 }
 
+std::unique_ptr<Expr> defaultFunction::tangent(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap) {
+    std::unique_ptr<Expr> x;
+    getArguments(arguments, extraMap, x);
+
+    Number* xRes = dynamic_cast<Number*>(x.get());
+    if (xRes) {
+        return std::make_unique<Number>(tan(xRes->value));
+    }
+    throw std::exception("Function error!!!");
+}
+
 std::unique_ptr<Expr> defaultFunction::logb(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap) {
     std::unique_ptr<Expr> b, a;
     getArguments(arguments, extraMap, b, a);
@@ -191,6 +206,40 @@ std::unique_ptr<Expr> defaultFunction::ln(std::vector<std::unique_ptr<Expr>>& ar
     Number* aRes = dynamic_cast<Number*>(a.get());
     if (aRes) {
         return std::make_unique<Number>(log(aRes->value));
+    }
+    throw std::exception("Function error!!!");
+}
+
+std::unique_ptr<Expr> defaultFunction::absolute(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap) {
+    std::unique_ptr<Expr> x;
+    getArguments(arguments, extraMap, x);
+
+    Number* xRes = dynamic_cast<Number*>(x.get());
+    if (xRes) {
+        return std::make_unique<Number>(abs(xRes->value));
+    }
+    throw std::exception("Function error!!!");
+}
+
+std::unique_ptr<Expr> defaultFunction::nroot(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap) {
+    std::unique_ptr<Expr> n, x;
+    getArguments(arguments, extraMap, n, x);
+
+    Number* nRes = dynamic_cast<Number*>(n.get());
+    Number* xRes = dynamic_cast<Number*>(x.get());
+    if (nRes && xRes) {
+        return std::make_unique<Number>(pow(xRes->value, 1 / nRes->value));
+    }
+    throw std::exception("Function error!!!");
+}
+
+std::unique_ptr<Expr> defaultFunction::sroot(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap) {
+    std::unique_ptr<Expr> x;
+    getArguments(arguments, extraMap, x);
+
+    Number* xRes = dynamic_cast<Number*>(x.get());
+    if (xRes) {
+        return std::make_unique<Number>(sqrt(xRes->value));
     }
     throw std::exception("Function error!!!");
 }

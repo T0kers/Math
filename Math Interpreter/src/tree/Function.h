@@ -44,8 +44,12 @@ namespace defaultFunction {
 
     std::unique_ptr<Expr> sine(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
     std::unique_ptr<Expr> cosine(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
+    std::unique_ptr<Expr> tangent(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
     std::unique_ptr<Expr> logb(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
     std::unique_ptr<Expr> ln(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
+    std::unique_ptr<Expr> absolute(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
+    std::unique_ptr<Expr> nroot(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
+    std::unique_ptr<Expr> sroot(std::vector<std::unique_ptr<Expr>>& arguments, const Function::paramArgMap& extraMap);
 }
 
 extern std::unordered_map<std::string, std::pair<std::vector<std::string>, std::shared_ptr<Expr>>> functionMap;
