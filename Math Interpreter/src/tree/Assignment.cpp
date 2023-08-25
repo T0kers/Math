@@ -14,13 +14,13 @@ std::unique_ptr<Expr> Assignment::clone() const {
 std::unique_ptr<Expr> Assignment::approximate(const paramArgMap& extraMap) {
     std::string name = variable->getName();
 
-    if (constantMap.find(name) != constantMap.end()) {
+    if (constantMap.count(name)) {
         throw std::exception("This identifier name is protected.");
     }
 
     auto result = value->approximate(extraMap);
 
-    if (extraMap.find(name) != extraMap.end()) {
+    if (extraMap.count(name)) {
         ConstVar* varPtr = dynamic_cast<ConstVar*>(extraMap.at(name).get());
         if (varPtr != nullptr) {
             variableMap[varPtr->name] = std::move(result);
@@ -36,7 +36,7 @@ std::unique_ptr<Expr> Assignment::evaluate(const paramArgMap& extraMap) {
     std::string name = variable->getName();
 
     if (dynamic_cast<ConstVar*>(variable.get())) {
-        if (constantMap.find(name) != constantMap.end()) {
+        if (constantMap.count(name)) {
             throw std::exception("This identifier name is protected.");
         }
         try {
@@ -46,7 +46,7 @@ std::unique_ptr<Expr> Assignment::evaluate(const paramArgMap& extraMap) {
 
         }
 
-        if (extraMap.find(name) != extraMap.end()) {
+        if (extraMap.count(name)) {
             // check if variable is another variable, and then use that instead for creating new variable (i think this is bad way)
             ConstVar* varPtr = dynamic_cast<ConstVar*>(extraMap.at(name).get());
             // make identifier function to get "to the bottom" of variable saved IN extraMap

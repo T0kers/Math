@@ -11,20 +11,20 @@ ConstVar::ConstVar(const ConstVar& obj)
     : name(obj.name) {}
 
 std::unique_ptr<Expr> ConstVar::approximate(const paramArgMap& extraMap) {
-    if (constantMap.find(name) != constantMap.end()) {
+    if (constantMap.count(name)) {
         return std::make_unique<Number>(constantMap.at(name));
     }
-    else if (extraMap.find(name) != extraMap.end()) {
+    else if (extraMap.count(name)) {
         std::unique_ptr<Expr> result = extraMap.at(name)->clone();
         ConstVar* constVar = dynamic_cast<ConstVar*>(result.get());
         if (constVar) {
-            if (variableMap.find(name) != variableMap.end()) {
+            if (variableMap.count(name)) {
                 return variableMap.at(name)->approximate(extraMap);
             }
         }
         return result->approximate(extraMap);
     }
-    else if (variableMap.find(name) != variableMap.end()) {
+    else if (variableMap.count(name)) {
         return variableMap.at(name)->approximate(extraMap);
     }
     throw std::exception("Identifier does not exist");

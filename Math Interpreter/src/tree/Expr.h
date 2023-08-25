@@ -19,8 +19,8 @@ enum class Symbol {
     ERROR = -1, PLUS = 0, MINUS, MULTIPLY, DIVIDE, POWER, lPAREN, rPAREN, ASSIGN, EQUAL, FUNCTION, COMMA
 };
 
-extern std::unordered_map<Symbol, std::string> opToStr;
-extern std::unordered_map<std::string, Symbol> strToOp;
+Symbol convertSymbol(std::string name);
+std::string convertSymbol(Symbol sym);
 
 bool isSymbolEqual(char letter, Symbol oper);
 

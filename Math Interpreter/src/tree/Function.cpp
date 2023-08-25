@@ -48,7 +48,7 @@ std::unique_ptr<Expr> Function::approximate(const paramArgMap& extraMap) {
     if (defaultFunctionMap.count(name)) {
         return callDefault(extraMap);
     }
-    else if (functionMap.find(name) != functionMap.end()) {
+    else if (functionMap.count(name)) {
         std::pair<std::vector<std::string>, std::shared_ptr<Expr>> parametersAndExpr = functionMap.at(name);
         std::vector<std::string> parameters = parametersAndExpr.first;
 

@@ -76,12 +76,7 @@ int8_t operationImportance(Symbol c) {
 }
 
 int8_t operationImportance(std::string ch) {
-    if (strToOp.find(ch) != strToOp.end()) {
-        return operationImportance(strToOp.at(ch));
-    }
-    else {
-        return operationImportance(Symbol::ERROR);
-    }
+    return operationImportance(convertSymbol(ch));
 }
 
 int8_t operationImportance(char ch) {
@@ -89,7 +84,7 @@ int8_t operationImportance(char ch) {
 }
 
 std::unique_ptr<Expr> findPart(const std::string& input, size_t& index, Symbol Operation, const std::string& name) {
-    std::cout << "operation: " << opToStr.at(Operation) << "\n";
+    std::cout << "operation: " << convertSymbol(Operation) << "\n";
     char letter;
     size_t search_index = index;
     int8_t importance = operationImportance(Operation);
@@ -181,80 +176,50 @@ std::unique_ptr<Expr> generateTree(const std::string& input, size_t& index, size
         else if (isalpha(letter)) {
             if (!lExpression) {
                 lExpression = findIdentifier(input, index);
-                /*if (isError(lExpression)) {
-                    return std::move(lExpression);
-                }*/
             }
             else {
                 rExpression = findIdentifier(input, index);
-                /*if (isError(rExpression)) {
-                    return std::move(rExpression);
-                }*/
             }
         }
         else if (isSymbolEqual(letter, Symbol::lPAREN)) {
             if (!lExpression) {
                 lExpression = findPart(input, index, Symbol::lPAREN);
-                /*if (isError(lExpression)) {
-                    return std::move(lExpression);
-                }*/
             }
         }
         else if (isSymbolEqual(letter, Symbol::PLUS)) {
             index++;
             rExpression = findPart(input, index, Symbol::PLUS);
-           /* if (isError(rExpression)) {
-                return std::move(rExpression);
-            }*/
             lExpression = std::make_unique<NewOperation>(NewOperation::Operator::addition, std::move(lExpression), std::move(rExpression));
         }
         else if (isSymbolEqual(letter, Symbol::MINUS)) {
             index++;
             if (!lExpression) {
                 lExpression = findPart(input, index, Symbol::MULTIPLY);
-                /*if (isError(lExpression)) {
-                    return std::move(lExpression);
-                }*/
                 lExpression = std::make_unique<NewOperation>(NewOperation::Operator::multiplication, std::make_unique<Number>(-1), std::move(lExpression));
             }
             else {
                 rExpression = findPart(input, index, Symbol::MINUS);
-                /*if (isError(rExpression)) {
-                    return std::move(rExpression);
-                }*/
                 lExpression = std::make_unique<NewOperation>(NewOperation::Operator::subtraction, std::move(lExpression), std::move(rExpression));
             }
         }
         else if (isSymbolEqual(letter, Symbol::MULTIPLY)) {
             index++;
             rExpression = findPart(input, index, Symbol::MULTIPLY);
-            /*if (isError(rExpression)) {
-                return std::move(rExpression);
-            }*/
             lExpression = std::make_unique<NewOperation>(NewOperation::Operator::multiplication, std::move(lExpression), std::move(rExpression));
         }
         else if (isSymbolEqual(letter, Symbol::DIVIDE)) {
             index++;
             rExpression = findPart(input, index, Symbol::DIVIDE);
-            /*if (isError(rExpression)) {
-                return std::move(rExpression);
-            }*/
             lExpression = std::make_unique<NewOperation>(NewOperation::Operator::division, std::move(lExpression), std::move(rExpression));
         }
         else if (isSymbolEqual(letter, Symbol::POWER)) {
             index++;
             rExpression = findPart(input, index, Symbol::POWER);
-            /*if (isError(rExpression)) {
-                return std::move(rExpression);
-            }*/
             lExpression = std::make_unique<NewOperation>(NewOperation::Operator::exponentiation, std::move(lExpression), std::move(rExpression));
         }
-        else if (input.substr(index, opToStr.at(Symbol::ASSIGN).length()) == opToStr.at(Symbol::ASSIGN)) {
-            index += opToStr.at(Symbol::ASSIGN).length();
+        else if (input.substr(index, convertSymbol(Symbol::ASSIGN).length()) == convertSymbol(Symbol::ASSIGN)) {
+            index += convertSymbol(Symbol::ASSIGN).length();
             rExpression = findPart(input, index, Symbol::ASSIGN);
-            /*if (isError(rExpression)) {
-                return std::move(rExpression);
-            }*/
             auto lIdentifier = dynamic_cast<Identifier*>(lExpression.get());
             if (lIdentifier) {
                 // lExpression is an identifier
