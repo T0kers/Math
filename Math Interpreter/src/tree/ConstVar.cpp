@@ -1,8 +1,5 @@
 #include "ConstVar.h"
 #include "Number.h"
-#include "Error.h"
-
-#include "Tree.h"
 
 ConstVar::ConstVar(std::string&& name)
     : name(name) {}
@@ -12,16 +9,6 @@ ConstVar::ConstVar(std::string& name)
 
 ConstVar::ConstVar(const ConstVar& obj)
     : name(obj.name) {}
-
-//std::unique_ptr<Expr> ConstVar::approximate() {
-//    if (constantMap.find(name) != constantMap.end()) {
-//        return std::make_unique<Number>(constantMap.at(name));
-//    }
-//    else if (variableMap.find(name) != variableMap.end()) {
-//        return variableMap.at(name)->approximate();
-//    }
-//    return std::make_unique<Error>("Identifier does not exist");
-//}
 
 std::unique_ptr<Expr> ConstVar::approximate(const paramArgMap& extraMap) {
     if (constantMap.find(name) != constantMap.end()) {

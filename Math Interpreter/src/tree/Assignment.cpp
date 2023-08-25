@@ -19,9 +19,6 @@ std::unique_ptr<Expr> Assignment::approximate(const paramArgMap& extraMap) {
     }
 
     auto result = value->approximate(extraMap);
-    /*if (isError(result)) {
-        return result;
-    }*/
 
     if (extraMap.find(name) != extraMap.end()) {
         ConstVar* varPtr = dynamic_cast<ConstVar*>(extraMap.at(name).get());
@@ -48,9 +45,6 @@ std::unique_ptr<Expr> Assignment::evaluate(const paramArgMap& extraMap) {
         catch (...) {
 
         }
-        //if (isError(result)) {
-        //    return result;
-        //}
 
         if (extraMap.find(name) != extraMap.end()) {
             // check if variable is another variable, and then use that instead for creating new variable (i think this is bad way)

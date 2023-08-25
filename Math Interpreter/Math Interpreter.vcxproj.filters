@@ -24,9 +24,6 @@
     <ClCompile Include="src\tree\Expr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tree\Error.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\tree\Identifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tree\Expr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\tree\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tree\ConstVar.h">

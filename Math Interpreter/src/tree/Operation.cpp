@@ -1,9 +1,5 @@
 #include "Operation.h"
-#include "ConstVar.h"
-#include "Error.h"
 #include "Number.h"
-
-#include "Tree.h"
 
 
 NewOperation::NewOperation(Symbol oper, std::unique_ptr<Expr> lChild, std::unique_ptr<Expr> rChild)
@@ -43,7 +39,7 @@ std::unique_ptr<Expr> NewOperation::clone() const {
 }
 
 std::string NewOperation::getInfo() const {
-    std::string info = '[' + lChild->getInfo();
+    std::string info = '(' + lChild->getInfo();
 
     switch (oper) {
     case NewOperation::Operator::addition:
@@ -65,7 +61,7 @@ std::string NewOperation::getInfo() const {
         info += '?';
         break;
     }
-    info += rChild->getInfo() + ']';
+    info += rChild->getInfo() + ')';
     return info;
 }
 

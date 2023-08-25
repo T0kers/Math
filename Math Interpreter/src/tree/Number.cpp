@@ -1,5 +1,4 @@
 #include "Number.h"
-#include "Tree.h"
 
 std::string doubleToString(double value) {
     std::ostringstream oss;
@@ -22,17 +21,9 @@ std::unique_ptr<Expr> Number::clone() const {
     return std::make_unique<Number>(*this);
 }
 
-//std::unique_ptr<Expr> Number::approximate() {
-//    return std::make_unique<Number>(value);
-//}
-
 std::unique_ptr<Expr> Number::approximate(const paramArgMap& extraMap) {
     return std::make_unique<Number>(value);
 }
-
-//std::unique_ptr<Expr> Number::evaluate() {
-//    return std::make_unique<Number>(value);
-//}
 
 std::unique_ptr<Expr> Number::evaluate(const paramArgMap& extraMap) {
     return std::make_unique<Number>(value);

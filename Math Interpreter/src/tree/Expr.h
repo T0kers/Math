@@ -31,10 +31,7 @@ public:
     typedef std::map<std::string, std::unique_ptr<Expr>> paramArgMap;
     virtual std::unique_ptr<Expr> clone() const = 0;
 
-    //virtual std::unique_ptr<Expr> approximate() = 0;
     virtual std::unique_ptr<Expr> approximate(const paramArgMap& extraMap) = 0;
-
-    //virtual std::unique_ptr<Expr> evaluate() = 0;
     virtual std::unique_ptr<Expr> evaluate(const paramArgMap& extraMap) = 0;
 
     virtual std::string getInfo() const = 0;

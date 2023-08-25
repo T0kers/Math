@@ -1,7 +1,8 @@
 #include "Function.h"
-#include "Error.h"
+#include "Operation.h"
+#include "Number.h"
+#include "ConstVar.h"
 
-#include "Tree.h"
 
 Function::Function(const std::string& name, std::vector<std::unique_ptr<Expr>>& input)
     : name(name) {

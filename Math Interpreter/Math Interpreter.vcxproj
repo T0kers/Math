@@ -135,7 +135,6 @@
     <ClCompile Include="src\treeGeneration.cpp" />
     <ClCompile Include="src\tree\Assignment.cpp" />
     <ClCompile Include="src\tree\ConstVar.cpp" />
-    <ClCompile Include="src\tree\Error.cpp" />
     <ClCompile Include="src\tree\Expr.cpp" />
     <ClCompile Include="src\tree\Function.cpp" />
     <ClCompile Include="src\tree\Identifier.cpp" />
@@ -149,7 +148,6 @@
     <ClInclude Include="src\treeGeneration.h" />
     <ClInclude Include="src\tree\Assignment.h" />
     <ClInclude Include="src\tree\ConstVar.h" />
-    <ClInclude Include="src\tree\Error.h" />
     <ClInclude Include="src\tree\Expr.h" />
     <ClInclude Include="src\tree\Function.h" />
     <ClInclude Include="src\tree\Tree.h" />
